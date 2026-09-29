@@ -1,0 +1,77 @@
+paths:
+  project_target: /home/ndebeer/DevEnv/projects/OmniWizz
+  workspace_root: /home/ndebeer/DevEnv
+  runs: runs
+  skills: skills
+  templates: templates
+
+providers:
+  ollama:
+    base_url: http://127.0.0.1:11434
+    default_model: qwen2.5-coder:14b
+  openrouter:
+    # API key is loaded from OPENROUTER_API_KEY or codebridge/.env
+    base_url: https://openrouter.ai/api/v1
+    default_model: google/gemini-2.5-flash
+
+workflow:
+  terminal_approval: prompt # prompt | auto; Prompt is the safe default
+  local_first: true
+  max_agent_turns: 12
+  max_retries: 3
+  plan_requires_approval: true
+
+roles:
+  researcher:
+    provider: ollama
+    model: qwen2.5-coder:14b
+    fallback_provider: openrouter
+    fallback_model: google/gemini-2.5-flash
+    tools: [workspace_read, web_research]
+    skills: [research]
+    template: researcher.md
+  requirements:
+    provider: ollama
+    model: qwen2.5-coder:14b
+    fallback_provider: openrouter
+    fallback_model: google/gemini-2.5-flash
+    tools: [workspace_read]
+    skills: [requirements]
+    template: requirements.md
+  architect:
+    provider: ollama
+    model: qwen2.5-coder:14b
+    fallback_provider: openrouter
+    fallback_model: google/gemini-2.5-flash
+    tools: [workspace_read]
+    skills: [architecture]
+    template: architect.md
+  implementer:
+    provider: ollama
+    model: qwen2.5-coder:14b
+    tools: [workspace_read, code_edit, terminal]
+    skills: [implementation]
+    template: implementer.md
+  verifier:
+    provider: ollama
+    model: qwen2.5-coder:14b
+    fallback_provider: openrouter
+    fallback_model: google/gemini-2.5-flash
+    tools: [workspace_read, terminal]
+    skills: [verification]
+    template: verifier.md
+
+plugins:
+  web_research:
+    enabled: false
+    provider: not_configured # add a real search adapter before enabling
+  workspace_read:
+    enabled: true
+  code_edit:
+    enabled: true
+  terminal:
+    enabled: true
+
+skills:
+  discover_workspace_files: true
+  directories: [skills, .agents/skills, .codex/skills]

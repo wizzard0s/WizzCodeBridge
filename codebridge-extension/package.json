@@ -1,0 +1,82 @@
+{
+  "name": "codebridge-console",
+  "displayName": "CodeBridge Console",
+  "description": "Visual cockpit view for the custom local multi-agent bridge framework.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:codebridge-actions"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "CodeBridge",
+      "properties": {
+        "codebridge.terminalApproval": {
+          "type": "string",
+          "enum": ["prompt", "auto"],
+          "default": "prompt",
+          "enumDescriptions": ["Ask before running each terminal command", "Run terminal commands without per-command prompts"],
+          "description": "Controls approval for terminal commands started by CodeBridge."
+        },
+        "codebridge.activeRunId": { "type": "string", "default": "", "description": "Most recent CodeBridge planning run in this workspace." },
+        "codebridge.projectTarget": { "type": "string", "default": "", "description": "Project directory CodeBridge should inspect and edit. If empty, use config.yaml." },
+        "codebridge.roles.researcher.provider": { "type": "string", "enum": ["ollama", "openrouter"], "default": "ollama", "description": "Provider for the researcher role." },
+        "codebridge.roles.researcher.model": { "type": "string", "default": "qwen2.5-coder:14b", "description": "Model for the researcher role." },
+        "codebridge.roles.requirements.provider": { "type": "string", "enum": ["ollama", "openrouter"], "default": "ollama", "description": "Provider for the requirements role." },
+        "codebridge.roles.requirements.model": { "type": "string", "default": "qwen2.5-coder:14b", "description": "Model for the requirements role." },
+        "codebridge.roles.architect.provider": { "type": "string", "enum": ["ollama", "openrouter"], "default": "ollama", "description": "Provider for the architect role." },
+        "codebridge.roles.architect.model": { "type": "string", "default": "qwen2.5-coder:14b", "description": "Model for the architect role." },
+        "codebridge.roles.implementer.provider": { "type": "string", "enum": ["ollama", "openrouter"], "default": "ollama", "description": "Provider for the implementer role." },
+        "codebridge.roles.implementer.model": { "type": "string", "default": "qwen2.5-coder:14b", "description": "Model for the implementer role." },
+        "codebridge.roles.verifier.provider": { "type": "string", "enum": ["ollama", "openrouter"], "default": "ollama", "description": "Provider for the verifier role." },
+        "codebridge.roles.verifier.model": { "type": "string", "default": "qwen2.5-coder:14b", "description": "Model for the verifier role." }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codebridge-view",
+          "title": "CodeBridge",
+          "icon": "$(rocket)"
+        }
+      ]
+    },
+    "views": {
+      "codebridge-view": [
+        {
+          "type": "webview",
+          "id": "codebridge-actions",
+          "name": "Execution Actions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "codebridge.runPlan",
+        "title": "🧠 CodeBridge: Plan Project Roadmap",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "codebridge.runExecute",
+        "title": "🪃 CodeBridge: Run Local GPU Muscle",
+        "icon": "$(play)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
