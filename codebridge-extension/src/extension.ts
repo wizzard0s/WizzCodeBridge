@@ -169,92 +169,78 @@ class CodeBridgeWebViewProvider implements vscode.WebviewViewProvider {
             <html lang="en">
             <head>
                 <style>
-                    body { font-family: sans-serif; padding: 8px; display: flex; flex-direction: column; gap: 7px; background-color: transparent; box-sizing: border-box; height: 100vh; overflow: hidden; }
-                    .title { font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; color: var(--vscode-foreground); }
-                    
-                    .composer { flex: 0 0 auto; border: 1px solid var(--vscode-input-border, #3c3c3c); border-radius: 12px; background: var(--vscode-input-background); padding: 7px; }
-                    textarea { display: block; width: 100%; min-height: 38px; max-height: 120px; box-sizing: border-box; background: transparent; color: var(--vscode-input-foreground); border: 0; padding: 3px 5px 7px; font-family: inherit; font-size: 12px; line-height: 1.4; resize: vertical; }
-                    textarea:focus { outline: none; }
-                    .composer:focus-within { outline: 1px solid var(--vscode-focusBorder); }
-                    
-                    button { background-color: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 7px; cursor: pointer; text-align: center; border-radius: 4px; font-weight: bold; font-size: 11px; width: 100%; }
-                    button:hover { background-color: var(--vscode-button-hoverBackground); }
-                    .execute-btn { background-color: #2ea043; color: white; margin-top: 2px; }
-                    .execute-btn:hover { background-color: #3fb950; }
-                    .small-btn { width: auto; padding: 4px 7px; font-size: 10px; }
+                    body { font-family: sans-serif; padding: 8px; display: flex; flex-direction: column; gap: 6px; background-color: transparent; box-sizing: border-box; height: 100vh; min-height: 0; overflow: hidden; color: var(--vscode-foreground); }
+                    .title { flex: 0 0 auto; font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; }
+                    button, select, input, textarea { font: inherit; }
+                    button { background: var(--vscode-button-secondaryBackground, var(--vscode-button-background)); color: var(--vscode-button-secondaryForeground, var(--vscode-button-foreground)); border: 0; cursor: pointer; border-radius: 4px; }
+                    button:hover { background: var(--vscode-button-secondaryHoverBackground, var(--vscode-button-hoverBackground)); }
+                    button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: 1px; }
                     .row { display: flex; gap: 6px; align-items: center; }
-                    .composer-actions { display: flex; align-items: center; gap: 5px; }
-                    .composer-actions .small-btn { padding: 4px 6px; }
-                    .composer-actions .action-icon { width: 25px; height: 25px; padding: 0; font-size: 14px; line-height: 25px; border-radius: 50%; }
-                    .composer-actions .send-btn { margin-left: auto; background: var(--vscode-button-background); color: var(--vscode-button-foreground); }
-                    select { flex: 1; min-width: 0; padding: 6px; background: var(--vscode-dropdown-background); color: var(--vscode-dropdown-foreground); border: 1px solid var(--vscode-dropdown-border); }
+                    .tabs-bar { flex: 0 0 auto; display: flex; border-bottom: 1px solid var(--vscode-panel-border, #333); gap: 4px; }
+                    .tab-btn { background: transparent; color: var(--vscode-foreground); border: 0; border-bottom: 2px solid transparent; padding: 6px 9px; width: auto; font-size: 11px; font-weight: normal; cursor: pointer; opacity: 0.68; }
+                    .tab-btn:hover { opacity: 1; background: var(--vscode-list-hoverBackground); }
+                    .tab-btn.active { opacity: 1; border-bottom-color: var(--vscode-focusBorder); font-weight: 600; }
+                    .terminal-zone { display: none; flex: 1 1 auto; min-height: 70px; background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); border: 1px solid var(--vscode-panel-border, #333); border-radius: 4px; padding: 8px; font-family: var(--vscode-editor-font-family, monospace); font-size: 11px; line-height: 1.45; overflow: auto; white-space: pre-wrap; box-sizing: border-box; }
+                    .terminal-zone.active { display: block; }
+                    .composer { flex: 0 0 auto; border: 1px solid var(--vscode-input-border, #3c3c3c); border-radius: 8px; background: var(--vscode-input-background); padding: 6px; }
+                    textarea { display: block; width: 100%; min-height: 42px; max-height: 120px; box-sizing: border-box; background: transparent; color: var(--vscode-input-foreground); border: 0; padding: 3px 4px 7px; font-family: inherit; font-size: 12px; line-height: 1.4; resize: vertical; }
+                    textarea:focus { outline: none; }
+                    .composer:focus-within { border-color: var(--vscode-focusBorder); }
+                    .composer-actions { display: flex; align-items: center; gap: 4px; padding-top: 3px; }
+                    .action-icon { flex: 0 0 28px; width: 28px; height: 28px; padding: 0; font-size: 14px; line-height: 28px; text-align: center; }
+                    .action-icon.run-btn { margin-left: auto; background: var(--vscode-testing-iconPassed, #2ea043); color: #fff; }
+                    .action-icon.run-btn:hover { filter: brightness(1.12); }
+                    .bottom-dock { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; min-height: 26px; }
+                    .mode-control { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 10px; opacity: 0.85; }
+                    .mode-control label { white-space: nowrap; }
+                    select { min-width: 0; padding: 4px 18px 4px 5px; background: var(--vscode-dropdown-background); color: var(--vscode-dropdown-foreground); border: 1px solid var(--vscode-dropdown-border); border-radius: 3px; font-size: 10px; }
+                    details { margin-left: auto; position: relative; font-size: 11px; }
+                    summary { cursor: pointer; list-style: none; padding: 5px 7px; border-radius: 4px; color: var(--vscode-foreground); }
+                    summary::-webkit-details-marker { display: none; }
+                    summary::before { content: '⚙'; margin-right: 5px; }
+                    details[open] > .settings-popover { position: absolute; z-index: 2; bottom: calc(100% + 6px); right: 0; width: min(340px, calc(100vw - 32px)); max-height: min(55vh, 360px); overflow: auto; padding: 8px; box-sizing: border-box; background: var(--vscode-sideBar-background, var(--vscode-editor-background)); border: 1px solid var(--vscode-panel-border, #444); border-radius: 6px; box-shadow: 0 4px 18px rgba(0,0,0,.35); }
                     .role-row { margin: 5px 0; }
-                    .role-row label { width: 82px; text-transform: capitalize; }
-                    .role-row input { flex: 1; min-width: 0; padding: 6px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); }
-                    
-                    /* Tab Selector Panel Bar Layout */
-                    .tabs-bar { display: flex; border-bottom: 1px solid #21262d; margin-top: 5px; gap: 4px; }
-                    .tab-btn { background: transparent; color: var(--vscode-foreground); border: none; padding: 6px 12px; width: auto; font-size: 11px; font-weight: normal; cursor: pointer; border-radius: 4px 4px 0 0; opacity: 0.6; }
-                    .tab-btn:hover { opacity: 1; background: rgba(255,255,255,0.05); }
-                    .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--vscode-button-background); font-weight: bold; }
-                    
-                    /* Tabbed Terminal Panels Configuration */
-                    .terminal-zone {
-                        display: none; /* Hidden by default */
-                        flex: 1 1 auto;
-                        min-height: 0;
-                        background-color: #0d1117;
-                        color: #c9d1d9;
-                        border: 1px solid #21262d;
-                        border-radius: 0 0 4px 4px;
-                        padding: 8px;
-                        font-family: 'Courier New', Courier, monospace;
-                        font-size: 11px;
-                        line-height: 14px;
-                        overflow-y: auto;
-                        white-space: pre-wrap;
-                        height: auto;
-                        box-sizing: border-box;
-                    }
-                    .terminal-zone.active { display: block; } /* Render active log zone exclusively */
+                    .role-row label { width: 82px; text-transform: capitalize; font-size: 10px; }
+                    .role-row input { flex: 1; min-width: 0; padding: 5px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border); border-radius: 3px; font-size: 10px; }
+                    .small-btn { width: auto; padding: 5px 7px; font-size: 10px; }
+                    .settings-popover small { display: block; opacity: .7; margin-top: 7px; }
+                    @media (max-width: 280px) { body { padding: 5px; gap: 4px; } .tab-btn { padding: 5px; font-size: 10px; } .mode-control label { display: none; } .role-row label { width: 65px; } }
                 </style>
             </head>
             <body>
                 <div class="title">CodeBridge Control Board</div>
-                <div class="row">
-                    <label for="terminalMode">Terminal commands</label>
-                    <select id="terminalMode" onchange="setTerminalMode(this.value)">
-                        <option value="prompt">Prompt before each command</option>
-                        <option value="auto">Run automatically</option>
-                    </select>
-                </div>
-                <details>
-                    <summary>Role model routing</summary>
-                    ${roleSettingsHtml}
-                    <small>Saved per workspace; the API key remains in your environment or .env.</small>
-                </details>
-                <button class="execute-btn" onclick="triggerExecute()">Run accepted plan</button>
-                
-                <!-- The Navigation Tab Headers Bar Grid Layout -->
                 <div class="tabs-bar">
-                    <button id="tabHead-plan" class="tab-btn active" onclick="switchTab('plan')">📋 Planning and review</button>
-                    <button id="tabHead-muscle" class="tab-btn" onclick="switchTab('muscle')">⚙️ Implementation</button>
+                    <button id="tabHead-plan" class="tab-btn active" onclick="switchTab('plan')" title="Planning and review">▤ Planning</button>
+                    <button id="tabHead-muscle" class="tab-btn" onclick="switchTab('muscle')" title="Implementation">⚙ Implementation</button>
                 </div>
-                
-                <!-- Tab View 1: Architecture Planning Log Window -->
                 <div id="term-plan" class="terminal-zone active">System standing by. Awaiting planning parameters...</div>
-                
-                <!-- Tab View 2: Local GPU Container Muscle Execution Log Window -->
                 <div id="term-muscle" class="terminal-zone">Muscle core standby. Run the execution engine to stream live data logs...</div>
 
                 <div class="composer">
                     <textarea id="promptInput" placeholder="Describe your goal or reply to the active interview..."></textarea>
                     <div class="composer-actions">
-                        <button class="small-btn action-icon" title="Start planning" aria-label="Start planning" onclick="triggerPlan()">＋</button>
-                        <button class="small-btn" onclick="sendPlanInput()">Send reply</button>
-                        <button class="small-btn" title="Revise plan" aria-label="Revise plan" onclick="triggerRevise()">Revise</button>
-                        <button class="small-btn send-btn action-icon" title="Run accepted plan" aria-label="Run accepted plan" onclick="triggerExecute()">↑</button>
+                        <button class="action-icon" type="button" title="Start a new plan" aria-label="Start a new plan" onclick="triggerPlan()">＋</button>
+                        <button class="action-icon" type="button" title="Send interview answer or approval" aria-label="Send interview answer or approval" onclick="sendPlanInput()">↵</button>
+                        <button class="action-icon" type="button" title="Revise the accepted plan" aria-label="Revise the accepted plan" onclick="triggerRevise()">⟳</button>
+                        <button class="action-icon run-btn" type="button" title="Run accepted plan" aria-label="Run accepted plan" onclick="triggerExecute()">▶</button>
                     </div>
+                </div>
+                <div class="bottom-dock">
+                    <div class="mode-control">
+                        <label for="terminalMode">Terminal</label>
+                        <select id="terminalMode" aria-label="Terminal command approval" onchange="setTerminalMode(this.value)">
+                            <option value="prompt">Ask before commands</option>
+                            <option value="auto">Run automatically</option>
+                        </select>
+                    </div>
+                    <details>
+                        <summary>Settings</summary>
+                        <div class="settings-popover">
+                            <strong>Role model routing</strong>
+                            ${roleSettingsHtml}
+                            <small>Saved per workspace. The API key stays in your environment or ignored .env file.</small>
+                        </div>
+                    </details>
                 </div>
 
                 <script>
@@ -266,6 +252,13 @@ class CodeBridgeWebViewProvider implements vscode.WebviewViewProvider {
                         switchTab('plan');
                         vscode.postMessage({ command: 'codebridge.runPlan', text: promptText });
                     }
+
+                    document.getElementById('promptInput').addEventListener('keydown', event => {
+                        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                            event.preventDefault();
+                            triggerPlan();
+                        }
+                    });
                     
                     function triggerExecute() {
                         switchTab('muscle');
